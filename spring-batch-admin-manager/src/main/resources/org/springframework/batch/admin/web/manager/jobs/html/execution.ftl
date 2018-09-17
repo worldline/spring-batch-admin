@@ -2,11 +2,12 @@
 <#escape x as x?html>
 <div id="job-execution">
 
-	<#if jobExecutionInfo??>
+	<#if jobExecutionInfoWithComment??>
 		<h2>Details for Job Execution</h2>
 
-		<#if jobExecutionInfo.stoppable || jobExecutionInfo.abandonable>
-			<#assign execution_url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfo.id?c}"/></#assign>
+		<#if jobExecutionInfoWithComment.jobExecutionInfo.stoppable || jobExecutionInfoWithComment.jobExecutionInfo.abandonable>
+			<#assign execution_url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfoWithComment.jobExecutionInfo.id?c}"/></#assign>
+
 			<form id="stopForm" action="${execution_url}" method="post">
 		
 				<#if stopRequest??>
@@ -14,7 +15,7 @@
 					<@spring.showErrors separator="<br/>" classOrStyle="error" /><br/>
 				</#if>
 		
-				<#if jobExecutionInfo.abandonable>
+				<#if jobExecutionInfoWithComment.jobExecutionInfo.abandonable>
 					<#assign stop_label="Abandon"/> 
 					<#assign stop_param="abandon"/>
 				<#else>
@@ -31,8 +32,8 @@
 			</form>
 		</#if>
 
-		<#if jobExecutionInfo.restartable>
-			<#assign jobs_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfo.name}/${jobExecutionInfo.jobId?c}/executions"/></#assign>
+		<#if jobExecutionInfoWithComment.jobExecutionInfo.restartable>
+			<#assign jobs_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfoWithComment.jobExecutionInfo.name}/${jobExecutionInfoWithComment.jobExecutionInfo.jobId?c}/executions"/></#assign>
 			<form id="restartForm" action="${jobs_url}" method="post">
 
 				<ol>
@@ -52,51 +53,67 @@
 			</tr>
 			<tr class="name-sublevel1-odd">
 				<td>ID</td>
-				<td>${jobExecutionInfo.id}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.id}</td>
 			</tr>
 			<tr class="name-sublevel1-even">
-				<#assign job_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfo.name}"/></#assign>
+				<#assign job_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfoWithComment.jobExecutionInfo.name}"/></#assign>
 				<td>Job Name</td>
-				<td><a href="${job_url}"/>${jobExecutionInfo.name}</a></td>
+				<td><a href="${job_url}"/>${jobExecutionInfoWithComment.jobExecutionInfo.name}</a></td>
 			</tr>
 			<tr class="name-sublevel1-odd">
-				<#assign job_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfo.name}/${jobExecutionInfo.jobId?c}/executions"/></#assign>
+				<#assign job_url><@spring.url relativeUrl="${servletPath}/jobs/${jobExecutionInfoWithComment.jobExecutionInfo.name}/${jobExecutionInfoWithComment.jobExecutionInfo.jobId?c}/executions"/></#assign>
 				<td>Job Instance</td>
-				<td><a href="${job_url}"/>${jobExecutionInfo.jobId}</a></td>
+				<td><a href="${job_url}"/>${jobExecutionInfoWithComment.jobExecutionInfo.jobId}</a></td>
 			</tr>
 			<tr class="name-sublevel1-even">
 				<td>Job Parameters</td>
-				<td>${jobExecutionInfo.jobParametersString}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.jobParametersString}</td>
 			</tr>
 			<tr class="name-sublevel1-odd">
 				<td>Start Date</td>
-				<td>${jobExecutionInfo.startDate}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.startDate}</td>
 			</tr>
 			<tr class="name-sublevel1-even">
 				<td>Start Time</td>
-				<td>${jobExecutionInfo.startTime}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.startTime}</td>
 			</tr>
 			<tr class="name-sublevel1-odd">
 				<td>Duration</td>
-				<td>${jobExecutionInfo.duration}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.duration}</td>
 			</tr>
 			<tr class="name-sublevel1-even">
 				<td>Status</td>
-				<td>${jobExecutionInfo.jobExecution.status}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.jobExecution.status}</td>
 			</tr>
 			<tr class="name-sublevel1-odd">
 				<td>Exit Code</td>
-				<td>${jobExecutionInfo.jobExecution.exitStatus.exitCode}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.jobExecution.exitStatus.exitCode}</td>
 			</tr>
 			<tr class="name-sublevel1-even">
 				<td>Exit Message</td>
-				<td>${jobExecutionInfo.jobExecution.exitStatus.exitDescription}</td>
+				<td>${jobExecutionInfoWithComment.jobExecutionInfo.jobExecution.exitStatus.exitDescription}</td>
 			</tr>
 			<tr class="name-sublevel1-odd">
-				<#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfo.id?c}/steps"/></#assign>
+				<#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfoWithComment.jobExecutionInfo.id?c}/steps"/></#assign>
 				<td>Step Executions Count</td>
-				<td><a href="${url}"/>${jobExecutionInfo.stepExecutionCount}</a></td>
+				<td><a href="${url}"/>${jobExecutionInfoWithComment.jobExecutionInfo.stepExecutionCount}</a></td>
 			</tr>
+      <tr class="name-sublevel1-even">
+        <td>Comment</td>
+        <td>
+          <div>
+            <#assign executions_url><@spring.url relativeUrl="${servletPath}/jobs/executions"/></#assign>
+            <form id="saveForm${jobExecutionInfoWithComment.jobExecutionInfo.id?c}"
+                  onsubmit="JavaScript:saveComment('${executions_url}', ${jobExecutionInfoWithComment.jobExecutionInfo.id?c}); return false;">
+              <input id="comment" type="text" name="comment" value="${jobExecutionInfoWithComment.comment.comment}"/>
+              <input type="hidden" id="id" name="id" value="${jobExecutionInfoWithComment.jobExecutionInfo.id?c}"/>
+              <input type="hidden" id="jobId" name="jobId"
+                     value="${jobExecutionInfoWithComment.jobExecutionInfo.jobId?c}"/>
+              <input name="submit" type="submit" value="Valider"/>
+            </form>
+          </div>
+        </td>
+      </tr>
 		</table>
 	
 <#if stepExecutionInfos?? && stepExecutionInfos?size != 0>
@@ -127,7 +144,7 @@
 					<td>${execution.duration}</td>
 					<td>
 						<#if execution.status == "NONE">${execution.status}<#else>
-						<#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfo.id?c}/steps/${execution.id?c}/progress"/></#assign>
+						<#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfoWithComment.jobExecutionInfo.id?c}/steps/${execution.id?c}/progress"/></#assign>
 						<a href="${url}"/>${execution.status}</a>
 						</#if>
 					</td>
@@ -139,6 +156,7 @@
 	<#else>
 		<p>There is no job execution to display.</p>
 	</#if>
-	
+	<#assign url><@spring.url relativeUrl="${servletPath}/resources/js/executions.js"/></#assign>
+  <script src="${url}" type="text/javascript"></script>
 </div><!-- job-execution -->
 </#escape>

@@ -44,15 +44,26 @@
 					<#assign rowClass="name-sublevel1-odd" />
 				</#if>
 				<tr class="${rowClass}">
-					<#assign execution_url><@spring.url relativeUrl="${servletPath}/jobs/executions/${execution.id?c}"/></#assign>
-					<td><a href="${execution_url}">${execution.id}</a></td>
-					<td>${execution.jobId}</td>
-					<td>${execution.name}</td>
-					<td>${execution.startDate}</td>
-					<td>${execution.startTime}</td>
-					<td>${execution.duration}</td>
-					<td>${execution.jobExecution.status}</td>
-					<td>${execution.jobExecution.exitStatus.exitCode}</td>
+					<#assign execution_url><@spring.url relativeUrl="${servletPath}/jobs/executions/${execution.jobExecutionInfo.id?c}"/></#assign>
+          <td><a href="${execution_url}">${execution.jobExecutionInfo.id}</a></td>
+          <td>${execution.jobExecutionInfo.jobId}</td>
+          <td>${execution.jobExecutionInfo.name}</td>
+          <td>${execution.jobExecutionInfo.startDate}</td>
+          <td>${execution.jobExecutionInfo.startTime}</td>
+          <td>${execution.jobExecutionInfo.duration}</td>
+          <td>${execution.jobExecutionInfo.jobExecution.status}</td>
+          <td>${execution.jobExecutionInfo.jobExecution.exitStatus.exitCode}</td>
+          <td>
+            <div>
+              <form id="saveForm${execution.jobExecutionInfo.id?c}"
+                    onsubmit="JavaScript:saveComment('${executions_url}', ${execution.jobExecutionInfo.id?c}); return false;">
+                <input id="comment" type="text" name="comment" value="${execution.comment.comment}"/>
+                <input type="hidden" id="id" name="id" value="${execution.jobExecutionInfo.id?c}"/>
+                <input type="hidden" id="jobId" name="jobId" value="${execution.jobExecutionInfo.jobId?c}"/>
+                <input name="submit" type="submit" value="Valider"/>
+              </form>
+            </div>
+          </td>
 				</tr>
 			</#list>
 		</table>
@@ -70,6 +81,7 @@
 	<#else>
 		<p>There are no job executions to display ${job_info!}.</p>
 	</#if>
-	
+	<#assign url><@spring.url relativeUrl="${servletPath}/resources/js/executions.js"/></#assign>
+  <script src="${url}" type="text/javascript"></script>
 </div><!-- job-executions -->
-</#escape>
+</#escape>l
