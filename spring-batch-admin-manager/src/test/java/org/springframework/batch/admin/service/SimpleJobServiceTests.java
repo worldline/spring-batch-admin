@@ -15,35 +15,10 @@
  */
 package org.springframework.batch.admin.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.isA;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
-import javax.batch.api.chunk.AbstractItemReader;
-import javax.batch.api.chunk.AbstractItemWriter;
-import javax.batch.operations.JobOperator;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -63,6 +38,29 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 
+import javax.batch.api.chunk.AbstractItemReader;
+import javax.batch.api.chunk.AbstractItemWriter;
+import javax.batch.operations.JobOperator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 /**
  * @author Dave Syer
  * @author Michael Minella
@@ -72,6 +70,9 @@ public class SimpleJobServiceTests {
 
 	@Mock
 	private SearchableJobInstanceDao jobInstanceDao;
+
+	@Mock
+	private JdbcCommentDao commentDao;
 
 	@Mock
 	private SearchableJobExecutionDao jobExecutionDao;
@@ -103,7 +104,7 @@ public class SimpleJobServiceTests {
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 
-		service = new SimpleJobService(jobInstanceDao, jobExecutionDao, stepExecutionDao,
+		service = new SimpleJobService(commentDao, jobInstanceDao, jobExecutionDao, stepExecutionDao,
 				jobRepository, jobLauncher, jobLocator, executionContextDao, jsrJobOperator);
 	}
 

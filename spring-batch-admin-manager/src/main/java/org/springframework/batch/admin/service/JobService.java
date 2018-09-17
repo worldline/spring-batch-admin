@@ -15,8 +15,7 @@
  */
 package org.springframework.batch.admin.service;
 
-import java.util.Collection;
-
+import org.springframework.batch.admin.domain.Comment;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
@@ -35,6 +34,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.core.step.NoSuchStepException;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+
+import java.util.Collection;
 
 /**
  * Interface for general purpose monitoring and management of Batch jobs. The
@@ -338,4 +339,7 @@ public interface JobService {
 	 */
 	Collection<String> getStepNamesForJob(String jobName) throws NoSuchJobException;
 
+	Comment getComment(Long jobId, Long jobExecutionId);
+
+	void saveComment(Long jobId, Long jobExecutionId, String comment);
 }

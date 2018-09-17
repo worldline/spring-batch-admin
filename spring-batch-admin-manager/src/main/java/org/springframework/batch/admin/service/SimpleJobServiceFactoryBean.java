@@ -15,15 +15,8 @@
  */
 package org.springframework.batch.admin.service;
 
-import static org.springframework.batch.support.DatabaseType.SYBASE;
-
-import java.sql.Types;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.batch.core.configuration.JobLocator;
 import org.springframework.batch.core.configuration.ListableJobLocator;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -50,6 +43,11 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.sql.Types;
+
+import static org.springframework.batch.support.DatabaseType.SYBASE;
 
 /**
  * A factory for a {@link JobService} that makes the configuration of its
@@ -241,6 +239,15 @@ public class SimpleJobServiceFactoryBean implements FactoryBean<JobService>, Ini
 		return dao;
 	}
 
+	protected JdbcCommentDao createCommnetDao() throws Exception {
+		JdbcCommentDao dao = new JdbcCommentDao();
+		dao.setJdbcTemplate(jdbcTemplate);
+		dao.setDataSource(dataSource);
+		dao.setTablePrefix(tablePrefix);
+		dao.afterPropertiesSet();
+		return dao;
+	}
+
 	protected SearchableJobExecutionDao createJobExecutionDao() throws Exception {
 		JdbcSearchableJobExecutionDao dao = new JdbcSearchableJobExecutionDao();
 		dao.setDataSource(dataSource);
@@ -299,7 +306,7 @@ public class SimpleJobServiceFactoryBean implements FactoryBean<JobService>, Ini
 		jobParametersConverter.afterPropertiesSet();
 		JsrJobOperator jsrJobOperator = new JsrJobOperator(jobExplorer, jobRepository, jobParametersConverter, transactionManager);
 		jsrJobOperator.afterPropertiesSet();
-		return new SimpleJobService(createJobInstanceDao(), createJobExecutionDao(), createStepExecutionDao(),
+		return new SimpleJobService(createCommnetDao(), createJobInstanceDao(), createJobExecutionDao(), createStepExecutionDao(),
 				jobRepository, jobLauncher, jobLocator, createExecutionContextDao(), jsrJobOperator);
 	}
 

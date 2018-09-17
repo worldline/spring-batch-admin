@@ -15,22 +15,9 @@
  */
 package org.springframework.batch.admin.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.batch.operations.JobOperator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.batch.admin.domain.Comment;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -56,6 +43,19 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
+
+import javax.batch.operations.JobOperator;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Implementation of {@link JobService} that delegates most of its work to other
@@ -86,6 +86,8 @@ public class SimpleJobService implements JobService, DisposableBean {
 
 	private final ExecutionContextDao executionContextDao;
 
+	private final JdbcCommentDao commentDao;
+
 	private Collection<JobExecution> activeExecutions = Collections.synchronizedList(new ArrayList<JobExecution>());
 
 	private JobOperator jsrJobOperator;
@@ -101,19 +103,20 @@ public class SimpleJobService implements JobService, DisposableBean {
 		this.shutdownTimeout = shutdownTimeout;
 	}
 
-	public SimpleJobService(SearchableJobInstanceDao jobInstanceDao, SearchableJobExecutionDao jobExecutionDao,
+	public SimpleJobService(JdbcCommentDao commentDao, SearchableJobInstanceDao jobInstanceDao, SearchableJobExecutionDao jobExecutionDao,
 			SearchableStepExecutionDao stepExecutionDao, JobRepository jobRepository, JobLauncher jobLauncher,
 			ListableJobLocator jobLocator, ExecutionContextDao executionContextDao) {
-		this(jobInstanceDao, jobExecutionDao, stepExecutionDao, jobRepository, jobLauncher, jobLocator, executionContextDao, null);
+		this(commentDao,jobInstanceDao, jobExecutionDao, stepExecutionDao, jobRepository, jobLauncher, jobLocator, executionContextDao, null);
 	}
 
-	public SimpleJobService(SearchableJobInstanceDao jobInstanceDao, SearchableJobExecutionDao jobExecutionDao,
+	public SimpleJobService(JdbcCommentDao commentDao, SearchableJobInstanceDao jobInstanceDao, SearchableJobExecutionDao jobExecutionDao,
 			SearchableStepExecutionDao stepExecutionDao, JobRepository jobRepository, JobLauncher jobLauncher,
 			ListableJobLocator jobLocator, ExecutionContextDao executionContextDao, JobOperator jsrJobOperator) {
 		super();
 		this.jobInstanceDao = jobInstanceDao;
 		this.jobExecutionDao = jobExecutionDao;
 		this.stepExecutionDao = stepExecutionDao;
+		this.commentDao = commentDao;
 		this.jobRepository = jobRepository;
 		this.jobLauncher = jobLauncher;
 		this.jobLocator = jobLocator;
@@ -546,6 +549,16 @@ public class SimpleJobService implements JobService, DisposableBean {
 			}
 		}
 		return Collections.unmodifiableList(new ArrayList<String>(stepNames));
+	}
+
+	@Override
+	public Comment getComment(Long jobId, Long jobExecutionId) {
+		return commentDao.getComment(jobId, jobExecutionId);
+	}
+
+	@Override
+	public void saveComment(Long jobId, Long jobExecutionId, String comment) {
+		commentDao.saveComment(jobId, jobExecutionId, comment);
 	}
 
 	private void checkJobExists(String jobName) throws NoSuchJobException {

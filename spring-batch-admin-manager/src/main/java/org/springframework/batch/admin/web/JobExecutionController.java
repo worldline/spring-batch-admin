@@ -15,24 +15,12 @@
  */
 package org.springframework.batch.admin.web;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.springframework.batch.admin.domain.Comment;
 import org.springframework.batch.admin.domain.JobExecutionInfo;
+import org.springframework.batch.admin.domain.JobExecutionInfoWithComment;
 import org.springframework.batch.admin.domain.JobInfo;
 import org.springframework.batch.admin.domain.StepExecutionInfo;
 import org.springframework.batch.admin.service.JobService;
@@ -58,6 +46,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Controller for job executions.
@@ -166,19 +165,30 @@ public class JobExecutionController {
 
 	@RequestMapping(value = { "/jobs/executions", "/jobs/executions.*" }, method = RequestMethod.GET)
 	public @ModelAttribute("jobExecutions")
-	Collection<JobExecutionInfo> list(ModelMap model, @RequestParam(defaultValue = "0") int startJobExecution,
-			@RequestParam(defaultValue = "20") int pageSize) {
+	Collection<JobExecutionInfoWithComment> list(ModelMap model, @RequestParam(defaultValue = "0") int startJobExecution,
+												 @RequestParam(defaultValue = "20") int pageSize) {
 
 		int total = jobService.countJobExecutions();
 		TableUtils.addPagination(model, total, startJobExecution, pageSize, "JobExecution");
 
-		Collection<JobExecutionInfo> result = new ArrayList<JobExecutionInfo>();
+		Collection<JobExecutionInfoWithComment> result = new ArrayList<JobExecutionInfoWithComment>();
+
 		for (JobExecution jobExecution : jobService.listJobExecutions(startJobExecution, pageSize)) {
-			result.add(new JobExecutionInfo(jobExecution, timeZone));
+			Comment comment = jobService.getComment(jobExecution.getJobId(), jobExecution.getId());
+			logger.debug("Job execution ID : " + jobExecution.getId().toString());
+			logger.debug("Job ID " + jobExecution.getJobId().toString());
+			logger.debug("Execution Comment :  " + comment.toString());
+			result.add(new JobExecutionInfoWithComment(new JobExecutionInfo(jobExecution, timeZone), comment));
 		}
 
 		return result;
 
+	}
+
+	@RequestMapping(value = {"/jobs/executions/saveComment"}, method = RequestMethod.POST)
+	public void saveComment(Model model, @RequestParam("comment") String comment, @RequestParam("jobId") String jobId, @RequestParam("id") String jobExecutionId) throws NoSuchJobExecutionException {
+		logger.debug(String.format("Comment to save : %s , JobId to save :  %s , job execution id to save : %s", comment, jobId, jobExecutionId));
+		jobService.saveComment(Long.valueOf(jobId), Long.valueOf(jobExecutionId), comment);
 	}
 
 	@RequestMapping(value = { "/jobs/{jobName}/{jobInstanceId}/executions", "/jobs/{jobName}/{jobInstanceId}" }, method = RequestMethod.GET)
@@ -269,7 +279,7 @@ public class JobExecutionController {
 
 	@RequestMapping(value = "/jobs/executions", method = RequestMethod.DELETE)
 	public @ModelAttribute("jobExecutions")
-	Collection<JobExecutionInfo> stopAll(ModelMap model, @RequestParam(defaultValue = "0") int startJobExecution,
+	Collection<JobExecutionInfoWithComment> stopAll(ModelMap model, @RequestParam(defaultValue = "0") int startJobExecution,
 			@RequestParam(defaultValue = "20") int pageSize) {
 
 		model.addAttribute("stoppedCount", jobService.stopAll());
@@ -315,12 +325,14 @@ public class JobExecutionController {
 	}
 
 	@RequestMapping(value = "/jobs/executions/{jobExecutionId}", method = RequestMethod.GET)
-	public String detail(Model model, @PathVariable Long jobExecutionId, @ModelAttribute("date") Date date,
+	public String detail(Model model, @PathVariable Long jobExecutionId, @ModelAttribute("date") Date date, @RequestParam(required = false)
 			Errors errors) {
 
 		try {
 			JobExecution jobExecution = jobService.getJobExecution(jobExecutionId);
-			model.addAttribute(new JobExecutionInfo(jobExecution, timeZone));
+			Comment comment = jobService.getComment(jobExecution.getJobId(), jobExecutionId);
+			logger.debug("Detail page comment : " + comment);
+			model.addAttribute("jobExecutionInfoWithComment", new JobExecutionInfoWithComment(new JobExecutionInfo(jobExecution, timeZone), comment));
 			String jobName = jobExecution.getJobInstance().getJobName();
 //			Collection<String> stepNames = new HashSet<String>(jobService.getStepNamesForJob(jobName));
 //			Collection<StepExecution> stepExecutions = new ArrayList<StepExecution>(jobExecution.getStepExecutions());
