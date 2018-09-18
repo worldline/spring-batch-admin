@@ -1,3 +1,12 @@
+This fork was created to extend the Spring Batch Admin project. Especially because we use the Spring Batch Admin UI to monitor our batchs. The code added gives us the possibility to add a comment for each job execution. (you can see it on the url {yourApp}/jobs/executions or when you click on the id of any job execution row to see the job execution details) 
+
+The database used in this case is Postgres. You can configure mysql too or any other database management system. 
+If you continue using Posgtres, add the name of your already created dataBase in spring-batch-admin-sample/src/main/resources/batch-postgresql.properties; "myDataBase" is just an example.
+
+To launch the project, Tomcat server was used.  
+
+Spring Batch Admin initial note : 
+[
 # NOTE: This project is being moved to the Spring Attic and is not recommended for new projects.  [Spring Cloud Data Flow](https://cloud.spring.io/spring-cloud-dataflow/) is the recommended replacement for managing and monitoring [Spring Batch](https://projects.spring.io/spring-batch/) jobs going forward.  You can read more about migrating to Spring Cloud Data Flow [here](https://github.com/spring-projects/spring-batch-admin/blob/master/MIGRATION.md).  
 
 Web application and API for managing and monitoring [Spring Batch](https://projects.spring.io/spring-batch/) jobs.  The application consists of a web UI using Spring MVC, a Java service API and a RESTful (JSON) API.  The web application is highly customizable, and is an ideal platform for deploying Spring Batch jobs.  It can also be used to monitor jobs running in other processes. See the main [project website](http://static.springsource.org/spring-batch-admin) for more details.
@@ -27,3 +36,4 @@ Before we accept a non-trivial patch or pull request we will need you to sign th
 
 # Code of Conduct
  This project adheres to the [Contributor Covenant ](https://github.com/spring-projects/spring-batch-admin/blob/master/CODE_OF_CONDUCT.adoc). By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+]
