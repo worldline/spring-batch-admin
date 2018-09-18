@@ -3,17 +3,18 @@
 	"id" : ${jobInfo.jobInstanceId?c}, 
 	"jobName" : "${jobInfo.name}",</#if>
 	<#if jobExecutions?? && jobExecutions?size!=0>
-	"jobExecutions" : {<#list jobExecutions as jobExecutionInfo><#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfo.id?c}.json"/></#assign>
-		"${jobExecutionInfo.id}" : {
-			"status" : "${jobExecutionInfo.jobExecution.status}",
-			"startDate" : "${jobExecutionInfo.startDate}",
-			"startTime" : "${jobExecutionInfo.startTime}",
-			"duration" : "${jobExecutionInfo.duration}",
+	"jobExecutions" : {<#list jobExecutions as jobExecutionInfoWithComment><#assign url><@spring.url relativeUrl="${servletPath}/jobs/executions/${jobExecutionInfoWithComment.jobExecutionInfo.id?c}.json"/></#assign>
+		"${jobExecutionInfoWithComment.jobExecutionInfo.id}" : {
+			"status" : "${jobExecutionInfoWithComment.jobExecutionInfo.jobExecution.status}",
+			"startDate" : "${jobExecutionInfoWithComment.jobExecutionInfo.startDate}",
+			"startTime" : "${jobExecutionInfoWithComment.jobExecutionInfo.startTime}",
+			"duration" : "${jobExecutionInfoWithComment.jobExecutionInfo.duration}",
 			"resource" : "${baseUrl}${url}",
-			"jobParameters" : {<#assign params=jobExecutionInfo.jobParameters/><#list params?keys as param>
+			"comment" : "${jobExecutionInfoWithComment.comment.comment}",
+			"jobParameters" : {<#assign params=jobExecutionInfoWithComment.jobExecutionInfo.jobParameters/><#list params?keys as param>
 				"${param}" : "${params[param]}"<#if param_index != params?size-1>,</#if></#list>
 			}
-		}<#if jobExecutionInfo_index != jobExecutions?size-1>,</#if></#list>
+		}<#if jobExecutionInfoWithComment_index != jobExecutions?size-1>,</#if></#list>
 	}<#if nextJobExecution?? || previousJobExecution??>,
 	<#assign executions_url><@spring.url relativeUrl="${servletPath}/jobs/executions.json"/></#assign>
 	"page" : {

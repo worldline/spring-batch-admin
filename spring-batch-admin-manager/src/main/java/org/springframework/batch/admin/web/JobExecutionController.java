@@ -209,12 +209,13 @@ public class JobExecutionController {
 					+ jobInstanceId + ")");
 		}
 		if (jobInstance != null && (errors == null || !errors.hasErrors())) {
-			Collection<JobExecutionInfo> result = new ArrayList<JobExecutionInfo>();
+			Collection<JobExecutionInfoWithComment> result = new ArrayList<JobExecutionInfoWithComment>();
 			try {
 				Collection<JobExecution> jobExecutions = jobService.getJobExecutionsForJobInstance(jobName,
 						jobInstanceId);
 				for (JobExecution jobExecution : jobExecutions) {
-					result.add(new JobExecutionInfo(jobExecution, timeZone));
+					Comment comment = jobService.getComment(jobExecution.getJobId(), jobExecution.getId());
+					result.add(new JobExecutionInfoWithComment(new JobExecutionInfo(jobExecution, timeZone), comment));
 				}
 			}
 			catch (NoSuchJobException e) {

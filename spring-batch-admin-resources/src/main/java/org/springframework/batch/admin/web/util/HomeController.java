@@ -284,7 +284,7 @@ public class HomeController implements ApplicationContextAware, InitializingBean
 	 * 
 	 * @return a map of URI pattern to request methods accepted
 	 */
-	@RequestMapping(value = { "/" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
 	public String getResources(HttpServletRequest request, ModelMap model) {
 
 		String servletPath = this.servletPath;

@@ -36,6 +36,7 @@
 				<th>Duration</th>
 				<th>Status</th>
 				<th>ExitCode</th>
+        <th>Comment</th>
 			</tr>
 			<#list jobExecutions as execution>
 				<#if execution_index % 2 == 0>
