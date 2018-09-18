@@ -84,4 +84,4 @@
 	<#assign url><@spring.url relativeUrl="${servletPath}/resources/js/executions.js"/></#assign>
   <script src="${url}" type="text/javascript"></script>
 </div><!-- job-executions -->
-</#escape>l
+</#escape>
